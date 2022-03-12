@@ -648,8 +648,8 @@ The ability to specify topologySpreadConstraints is also allowed through `topolo
 
 | Name                        | Description                         | Default |
 | --------------------------- | ----------------------------------- | ------- |
-| postgres_image              | Path of the image to pull           | 12      |
-| postgres_image_version      | Image version to pull               | 12      |
+| postgres_image              | Path of the image to pull           | postgres      |
+| postgres_image_version      | Image version to pull               | 13      |
 | node_selector               | AWX pods' nodeSelector              | ''      |
 | topology_spread_constraints | AWX pods' topologySpreadConstraints | ''      |
 | tolerations                 | AWX pods' tolerations               | ''      |
@@ -1046,6 +1046,21 @@ Deleting an AWX instance will remove all related deployments and statefulsets, h
 To upgrade AWX, it is recommended to upgrade the awx-operator to the version that maps to the desired version of AWX.  To find the version of AWX that will be installed by the awx-operator by default, check the version specified in the `image_version` variable in `roles/installer/defaults/main.yml` for that particular release.
 
 Apply the awx-operator.yml for that release to upgrade the operator, and in turn also upgrade your AWX deployment.
+
+#### PostgreSQL Upgrade Considerations
+
+If there is a PostgreSQL major version upgrade, after the data directory on the PVC is migrated to the new version, the old PVC is kept by default.
+This provides the ability to roll back if needed, but can take up extra storage space in your cluster unnecessarily. You can configure it to be deleted automatically
+after a successful upgrade by setting the following variable on the AWX spec. 
+
+
+```yaml
+  spec:
+    postgres_keep_pvc_after_upgrade: True
+```
+
+# Specify whether or not to keep the old PVC after PostgreSQL upgrades
+postgres_keep_pvc_after_upgrade: True
 
 #### v0.14.0
 
